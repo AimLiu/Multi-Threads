@@ -196,3 +196,29 @@ public static DeviceConfigHolder getInstance() {
 
 1. **incInstance（锁 this）与 incStatic（锁 Class）互斥吗？** 不互斥——它们锁的是两个不同对象（this vs Xxx.class）。判断方法间是否互斥，只看是否锁同一对象。同实例的 incInstance 之间会阻塞（同锁 this）；incStatic 之间也会阻塞（同锁 Class，与实例无关）——但这两个事实不改变"incInstance 与 incStatic 不互斥"的答案。
 2. **为什么锁专用私有对象而非 this/字符串常量？** this 公开、锁被外部共享；字符串常量被 intern，同字面量全局同对象，跨模块甚至与三方库抢同一把锁。生产要求锁对象 private final + 专用。
+
+## 任务 2.5：CAS 与原子类
+
+### CAS 原理
+
+Compare-And-Swap：CPU 级原子指令"值等于期望才替换，失败则重试（自旋）"。无阻塞、无挂起开销，是 `Atomic*` 家族、`ConcurrentHashMap`、AQS 的地基。
+
+### ABA 问题
+
+值 A→B→A，普通 CAS 觉察不到"变过"。对计数无影响；对"引用复用"敏感场景（无锁链表）用 `AtomicStampedReference`（版本号）识破。
+
+### AtomicLong vs LongAdder（实测对比）
+
+| | AtomicLong | LongAdder |
+|---|---|---|
+| 结构 | 单值，所有线程 CAS 同一个数 | base + Cell[] 分段累加，读时求和 |
+| 高并发写 | 慢（自旋+缓存行乒乓） | 快（热点分散） |
+| 读成本 | O(1) 精确 | O(Cell 数) 遍历 |
+| sum 语义 | get() 即时精确 | **非原子快照**：与写并发时弱一致；写全部结束后（如 join 之后）是精确值 |
+
+> 易错表述："竞争状态下 sum 不准确"——不准确的原因是"sum 与写**同时发生**"，不是"存在竞争"本身。join 提供 happens-before，之后 sum 精确。
+
+### 思考题结论
+
+1. **CAS 自旋在竞争极激烈时的隐患？** ①CPU 空转重试烧资源；②缓存行乒乓（每次写使其他核缓存失效，一致性协议来回搬同一行，与伪共享同源）；③可能饥饿（某线程一直失败）；④反直觉结论：竞争极激烈时 CAS 可能**比锁还慢**（锁 park 挂起不占 CPU，CAS 站着烧）。LongAdder 分段同时解这几层。
+2. **在线计数选 AtomicLong 还是 LongAdder？** 两个维度：**读写比** + **精确性需求**。写多读少（心跳计数、监控面板偶尔读）→ LongAdder；读频繁或需要精确瞬时值做判断（如连接数超限拒绝接入）→ AtomicLong（读 O(1) 且精确）。
