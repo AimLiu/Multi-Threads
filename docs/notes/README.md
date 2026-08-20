@@ -17,5 +17,6 @@
 | [m2-race-jmm.md](./m2-race-jmm.md) | 2 竞争与 JMM | 2.1 ~ 2.5（模块收官） | 2026-08-17 |
 | [m3-locks.md](./m3-locks.md) | 3 显式锁 | 3.1 ~ 3.4（模块收官） | 2026-08-18 |
 | [m4-coordination.md](./m4-coordination.md) | 4 线程协作 | 4.1 ~ 4.3（模块收官） | 2026-08-20 |
+| [m5-collections.md](./m5-collections.md) | 5 并发容器 | 5.1 | 2026-08-20 |
 
 > 计划里引用的其它笔记文件（`m2-race-jmm.md`、`m8-chm.md`、`m9-notes.md` 等）会在学到对应模块时创建。
