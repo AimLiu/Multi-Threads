@@ -19,5 +19,6 @@
 | [m4-coordination.md](./m4-coordination.md) | 4 线程协作 | 4.1 ~ 4.3（模块收官） | 2026-08-20 |
 | [m5-collections.md](./m5-collections.md) | 5 并发容器 | 5.1 ~ 5.3（模块收官） | 2026-08-20 |
 | [m6-pool.md](./m6-pool.md) | 6 线程池 | 6.1 ~ 6.5（模块收官） | 2026-08-21 |
+| [m7-scenarios.md](./m7-scenarios.md) | 7 场景实战 | 7.1 | 2026-08-21 |
 
 > 计划里引用的其它笔记文件（`m2-race-jmm.md`、`m8-chm.md`、`m9-notes.md` 等）会在学到对应模块时创建。
